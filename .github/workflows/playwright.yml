@@ -1,27 +1,22 @@
-name: Playwright Tests
-on:
-  push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
-jobs:
-  test:
-    timeout-minutes: 60
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: lts/*
-    - name: Install dependencies
-      run: npm ci
-    - name: Install Playwright Browsers
-      run: npx playwright install --with-deps
-    - name: Run Playwright tests
-      run: npx playwright test
-    - uses: actions/upload-artifact@v4
-      if: ${{ !cancelled() }}
-      with:
-        name: playwright-report
-        path: playwright-report/
-        retention-days: 30
+      - name: Run UI tests
+        run: npx playwright test --config=playwright.config.ts
+        env:
+          USER_EMAIL: ${{ secrets.USER_EMAIL }}
+          USER_PASSWORD: ${{ secrets.USER_PASSWORD }}
+
+      - name: Run API tests
+        if: ${{ !cancelled() }}
+        run: npx playwright test --config=playwright.api.config.ts
+        env:
+          API_CART_EMAIL: ${{ secrets.API_CART_EMAIL }}
+          API_CART_PASSWORD: ${{ secrets.API_CART_PASSWORD }}
+
+      - name: Upload test reports
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-reports
+          path: |
+            playwright-report/
+            api-report/
+          retention-days: 7
