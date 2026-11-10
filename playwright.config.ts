@@ -4,7 +4,7 @@ import { defineConfig, devices } from '@playwright/test';
 dotenv.config();
 
 export default defineConfig({
-  testDir: './tests',
+ testDir: './tests/UI',
    
 
   fullyParallel: true,
