@@ -257,7 +257,7 @@ test.describe("Practice page flow", () => {
         const resumeInput = page.locator('input[type="file"][accept=".pdf"]');
 
         // Upload PDF directly to hidden input
-        await resumeInput.setInputFiles("test_data/Certificate.pdf");
+        await resumeInput.setInputFiles('test_data/Cerfication.pdf');
 
         // Verify successful upload
         await expect(
