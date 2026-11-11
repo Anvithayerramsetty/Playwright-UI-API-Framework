@@ -1,8 +1,10 @@
-# Playwright UI and API Automation Framework
+# Playwright Automation Framework
 
 [![Playwright Tests](https://github.com/Anvithayerramsetty/Playwright-UI-API-Framework/actions/workflows/playwright.yml/badge.svg)](https://github.com/Anvithayerramsetty/Playwright-UI-API-Framework/actions/workflows/playwright.yml)
 
-A Playwright and TypeScript automation framework for [Playwright Automation Practice](https://www.playwrightautomation.com/), covering browser interactions, authentication and commerce APIs.
+A portfolio automation framework built with Playwright and TypeScript, covering UI and API workflows against a publicly available practice application. Includes feature-specific page objects, reusable fixtures, cross-browser tests and GitHub Actions CI.
+
+Application under test: https://www.playwrightautomation.com/
 
 ## Latest Verification
 
@@ -11,7 +13,7 @@ A Playwright and TypeScript automation framework for [Playwright Automation Prac
 - API TypeScript checking: **passed**.
 - Latest GitHub Actions workflow: **passed**.
 
-[View the latest verified successful CI run](PASTE_LATEST_GREEN_RUN_URL_HERE)
+[View CI workflow runs](https://github.com/Anvithayerramsetty/Playwright-UI-API-Framework/actions/workflows/playwright.yml)
 
 These results describe completed runs, not a guarantee of future reliability. CI allows up to two retries; a green workflow can include tests that passed after retrying.
 
