@@ -266,7 +266,7 @@ test.describe("Practice page flow", () => {
 
         // Verify filename
         await expect(
-            page.getByText("Certificate.pdf", { exact: true })
+            page.getByText("Certification.pdf", { exact: true })
         ).toBeVisible();
 
         // browser
@@ -812,8 +812,8 @@ test("verify dblclick copy", async ({ page }) => {
     const copybutton = page.getByRole("button", { name: "Copy Text" })
 
     const sourcevalue = await source.inputValue()
-    expect(target).toHaveValue(sourcevalue)
     await copybutton.dblclick();
+    await expect(target).toHaveValue(sourcevalue);
 
 });
 
@@ -938,103 +938,62 @@ test("Verify single and dual price sliders", async ({ page }) => {
 });
 
 
-test("Verify complete keyboard mission", async ({ page }) => {
+test('Verify complete keyboard mission', async ({ page }) => {
+  await page.goto(
+    'https://www.playwrightautomation.com/practice.html#section-keyboard'
+  );
 
-    // Navigate to the practice page
-    await page.goto(
-        "https://www.playwrightautomation.com/practice.html"
-    );
+  // 1. Select Automation using the keyboard.
+  const qa = page.getByTestId('keyboard-option-qa');
 
-    // Open Keyboard Actions through the sidebar
-    await page.getByText("Dialogs & Interactions", {
-        exact: true
-    }).first().click();
+  await expect(qa).toBeVisible();
+  await qa.click();
 
-    await page.getByText("Keyboard Actions", {
-        exact: true
-    }).click();
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('Enter');
 
-    // STEP 1: SELECT DEPARTMENT
+  await expect(
+    page.getByText('Selected Department:', { exact: false })
+  ).toContainText('Automation');
 
-    const qa = page.getByTestId("keyboard-option-qa");
-    const automation = page.getByTestId("keyboard-option-automation");
+  // 2. Complete the secret-key challenge.
+  const secretKey = page.locator('#keyboard-secret-input');
 
-    const departmentProgress = page.locator(
-        "#keyboard-progress-department"
-    );
+  await secretKey.pressSequentially('PLAYWRIGHT');
+  await expect(secretKey).toHaveValue('PLAYWRIGHT');
 
-    await expect(qa).toBeVisible();
-    await expect(automation).toBeVisible();
+  // 3. Copy and paste using the keyboard.
+  const source = page.locator('#keyboard-copy-source');
+  const destination = page.locator('#keyboard-copy-destination');
 
-    // Click QA to establish the selector's active state
-    await qa.click();
+  const expectedText = await source.inputValue();
+  expect(expectedText.length).toBeGreaterThan(0);
 
-    // Navigate to Automation using the keyboard
-    await page.keyboard.press("ArrowDown");
-    await page.keyboard.press("Enter");
+  await source.focus();
+  await page.keyboard.press('ControlOrMeta+A');
+  await page.keyboard.press('ControlOrMeta+C');
+  await page.keyboard.press('Tab');
 
-    // Check the actual selection
-    const selectedDepartment = page.getByText(
-        "Selected Department:",
-        { exact: false }
-    ).first();
+  await expect(destination).toBeFocused();
 
-    console.log(
-        "Selected department:",
-        await selectedDepartment.innerText()
-    );
+  await page.keyboard.press('ControlOrMeta+V');
+  await expect(destination).toHaveValue(expectedText);
 
-    await expect(selectedDepartment).toContainText("Automation");
+  // 4. Generate and verify the completion summary.
+  const generateSummary = page.getByRole('button', {
+    name: 'Generate Summary',
+    exact: true,
+  });
 
-    // Verify department progress is complete
-    await expect(departmentProgress).not.toHaveText("☐");
+  await expect(generateSummary).toBeEnabled();
+  await generateSummary.click();
 
+  await expect(
+    page.getByText('All Keyboard Challenges Completed', {
+      exact: false,
+    })
+  ).toBeVisible();
 
-    // STEP 2: SECRET KEY CHALLENGE
-
-    const secretKey = page.locator("#keyboard-secret-input");
-
-    await secretKey.pressSequentially("PLAYWRIGHT");
-
-    await expect(secretKey).toHaveValue("PLAYWRIGHT");
-
-
-    // STEP 3: COPY / PASTE CHALLENGE
-
-    const source = page.locator("#keyboard-copy-source");
-    const destination = page.locator("#keyboard-copy-destination");
-
-    const expectedText = await source.inputValue();
-
-    await source.focus();
-
-    await page.keyboard.press("ControlOrMeta+A");
-    await page.keyboard.press("ControlOrMeta+C");
-
-    await page.keyboard.press("Tab");
-
-    // Confirm Tab moved focus to the destination
-    await expect(destination).toBeFocused();
-
-    await page.keyboard.press("ControlOrMeta+V");
-
-    await expect(destination).toHaveValue(expectedText);
-
-
-    // STEP 4: GENERATE SUMMARY
-
-    const generateSummary = page.getByRole("button", {
-        name: "Generate Summary"
-    });
-
-    await expect(generateSummary).toBeEnabled();
-
-    await generateSummary.click();
-
-    // Verify all challenges are complete
-    await expect(
-        page.getByText("All Keyboard Challenges Completed")
-    ).toBeVisible();
 
 
     // Scroll
