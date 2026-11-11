@@ -168,9 +168,9 @@ test.describe("Practice page flow", () => {
 
         //Bootstrap Dropdown
         expect(page.getByText("Bootstrap Dropdown").first().isVisible())
-        expect(page.getByText("Select Job Title").isVisible())
-        await page.locator("#bd-job-title").click()
-        await page.getByText("QA Engineer").click()
+       // expect(page.getByText("Select Job Title").isVisible())
+       // await page.locator("#bd-job-title").click()
+       // await page.getByText("QA Engineer").click()
 
         //Auto Suggestive Dropdown
 
@@ -257,7 +257,7 @@ test.describe("Practice page flow", () => {
         const resumeInput = page.locator('input[type="file"][accept=".pdf"]');
 
         // Upload PDF directly to hidden input
-        await resumeInput.setInputFiles('test_data/Cerfication.pdf');
+        await resumeInput.setInputFiles('test_data/Certification.pdf');
 
         // Verify successful upload
         await expect(
@@ -289,6 +289,25 @@ test.describe("Practice page flow", () => {
 
     });
 
+});
+test('Verify job-title dropdown', async ({ page }) => {
+  await page.goto(
+    'https://www.playwrightautomation.com/practice.html#section-bootstrap-dropdown'
+  );
+
+  const dropdown = page.locator('#bd-job-title');
+  const option = page.getByRole('option', {
+    name: 'QA Engineer',
+    exact: true,
+  });
+
+  await expect(dropdown).toBeVisible();
+  await dropdown.click();
+
+  await expect(option).toBeVisible();
+  await option.click();
+
+  await expect(dropdown).toContainText('QA Engineer');
 });
 //file download
 test("Verify file download", async ({ page }) => {
@@ -1119,40 +1138,70 @@ test('Verify complete keyboard mission', async ({ page }) => {
 
     await newtab.waitForLoadState()
 });
-test('Verify multiple tabs at once', async ({ page }) => {
-    await page.goto(
-        'https://www.playwrightautomation.com/practice.html#section-browser-context-handling'
+test('Verify Mobilewright window opens', async ({ page }) => {
+  await page.goto(
+    'https://www.playwrightautomation.com/practice.html#section-browser-tabwindow'
+  );
+
+  const button = page.getByRole('button', {
+    name: 'Open Mobilewright Window',
+    exact: true,
+  });
+
+  await expect(button).toBeVisible();
+  await expect(button).toBeEnabled();
+
+  const [popup] = await Promise.all([
+    page.waitForEvent('popup'),
+    button.click(),
+  ]);
+
+  try {
+    await expect(popup).toHaveURL(
+      /^https:\/\/mobilewright\.dev(?:\/|$)/
     );
+  } finally {
+    await popup.close();
+  }
+});
+test('Verify multiple tabs at once', async ({ page }) => {
+  await page.goto(
+    'https://www.playwrightautomation.com/practice.html#section-browser-context-handling'
+  );
 
-    const tabs: Page[] = [];
-    const capture = (popup: Page) => tabs.push(popup);
+  const tabs: Page[] = [];
+  const capture = (popup: Page) => {
+    tabs.push(popup);
+  };
 
-    page.on('popup', capture);
+  page.on('popup', capture);
 
-    try {
-        await page.getByRole('button', {
-            name: 'Open Three Tabs at Once',
-            exact: true,
-        }).click();
+  try {
+    await page.getByRole('button', {
+      name: 'Open Three Tabs at Once',
+      exact: true,
+    }).click();
 
-        await expect.poll(() => tabs.length).toBe(3);
+    await expect.poll(() => tabs.length).toBe(3);
 
-        await expect.poll(() =>
-            tabs.map(tab =>
-                new URL(tab.url()).hostname.replace(/^www\./, '')
-            ).sort()
-        ).toEqual([
-            'docs.cypress.io',
-            'selenium.dev',
-            'webdriver.io',
-        ].sort());
-    } finally {
-        page.off('popup', capture);
+    await expect.poll(() =>
+      tabs.map(tab =>
+        new URL(tab.url()).hostname.replace(/^www\./, '')
+      ).sort()
+    ).toEqual([
+      'docs.cypress.io',
+      'selenium.dev',
+      'webdriver.io',
+    ].sort());
+  } finally {
+    page.off('popup', capture);
 
-        await Promise.all(
-            tabs.filter(tab => !tab.isClosed()).map(tab => tab.close())
-        );
-    }
+    await Promise.all(
+      tabs
+        .filter(tab => !tab.isClosed())
+        .map(tab => tab.close())
+    );
+  }
 });
 
 // Module 7 
